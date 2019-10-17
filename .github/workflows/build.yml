@@ -37,6 +37,16 @@ jobs:
        gomobile init
        make android
        cp build/golibs.aar $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/libs/tun2socks.aar
+    
+    - name: put MMDB
+      run: |
+       wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
+       echo $(tar -tvf GeoLite2-Country.tar.gz | grep mmdb)
+       name=$(tar -tvf GeoLite2-Country.tar.gz | grep mmdb | awk '{print $(NF)}')
+       echo $name
+       tar -xzvf GeoLite2-Country.tar.gz $name
+       cp $name $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/country.mmdb
+       touch $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/config.yaml
        
     - name: build with Gradle
       run: ./gradlew build --stacktrace
