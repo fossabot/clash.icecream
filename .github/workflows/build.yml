@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-        
+
     - name: build tun2socks
       run: |
        # go get github.com/trojan-gfw/igniter-go-libs/...
@@ -37,7 +37,7 @@ jobs:
        gomobile init
        make android
        cp build/golibs.aar $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/libs/tun2socks.aar
-    
+
     - name: put MMDB
       run: |
        wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz
@@ -47,8 +47,9 @@ jobs:
        tar -xzvf GeoLite2-Country.tar.gz $name
        cp $name $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/country.mmdb
        touch $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/config.yaml
-       
+
     - name: build with Gradle
       run: ./gradlew build --stacktrace
     - name: Run Unit tests
       run: ./gradlew testDebugUnitTest
+
