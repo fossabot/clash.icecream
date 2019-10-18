@@ -1,10 +1,5 @@
-name: Release
-
-on:
-  push:
-    tags:
-      - '*'
-
+name: Build
+on: [push, pull_request]
 jobs:
  build:
   runs-on: ubuntu-latest
@@ -53,7 +48,14 @@ jobs:
        cp $name $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/country.mmdb
        touch $(dirname $GITHUB_WORKSPACE)/clash.icecream/app/src/main/res/raw/config.yaml
 
-    - name: build
+    - name: build with Gradle
+      run: ./gradlew build --stacktrace
+    - name: Run Unit tests
+      run: ./gradlew testDebugUnitTest
+
+    # release if tags
+    - name: build release
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         echo $KEYSTORE_FILE | base64 --decode > app/sign.keystore
         echo $SIGNING | base64 --decode > signing.properties
@@ -65,6 +67,7 @@ jobs:
         SIGNING: ${{ secrets.SIGNING }}
 
     - name: create release
+      if: startsWith(github.ref, 'refs/tags/')
       id: create_release
       uses: actions/create-release@master
       env:
@@ -76,6 +79,7 @@ jobs:
         prerelease: false
 
     - name: upload release apk
+      if: startsWith(github.ref, 'refs/tags/')
       id: upload-release-apk
       uses: actions/upload-release-asset@master
       env:
@@ -87,6 +91,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: upload release mmdb
+      if: startsWith(github.ref, 'refs/tags/')
       id: upload-release-mmdb
       uses: actions/upload-release-asset@master
       env:
@@ -98,6 +103,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: upload release tun2socks
+      if: startsWith(github.ref, 'refs/tags/')
       id: upload-release-tun2socks
       uses: actions/upload-release-asset@master
       env:
@@ -107,4 +113,3 @@ jobs:
         asset_path: ./app/libs/tun2socks.aar
         asset_name: tun2socks.aar
         asset_content_type: application/zip
-
